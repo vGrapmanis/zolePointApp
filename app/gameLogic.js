@@ -1,58 +1,138 @@
 const gameLogic = {
-    claculateScores: (player, choice, result) => {
-        const scoreChanges = { "Lielais": 3, "Zole": 18, "Maza zole": 18};
-        const lossPenalty = { "Lielais": -6, "Zole": -21, "Maza zole": -21};
-        const specialWinBonus = { "Jani": 3, "Beztikis": 6};
-        const specialLossPenalty = { "Jani": -3, "Beztikis": -6};
+    calculateScores: (players, choice, result, chosenPlayerIndex) => {
+        const chosenPlayer = players[chosenPlayerIndex];
 
-        //
         if(choice === "Lielais") {
             switch (result){
                 case "Win Basic":
-                    return player.score += 3;
+                    chosenPlayer.score += 3;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score -= 1;
+                        }
+                    });
+                    break;
                 case "Win Jani":
-                    return player.score += 6;
+                    chosenPlayer.score += 6;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score -= 2;
+                        }
+                    });
+                    break;
                 case "Win Bezstikis":
-                    return player.score += 9;
-                case "Loss":
-                    return player.score -= 6;
+                    chosenPlayer.score += 9;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score -= 3;
+                        }
+                    });
+                    break;
+                case "Loss Basic":
+                    chosenPlayer.score -= 6;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score += 2;
+                        }
+                    });
+                    break;
                 case "Loss Jani":
-                    return player.score -= 9;
+                    chosenPlayer.score -= 9;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score += 3;
+                        }
+                    });
+                    break;
                 case "Loss Bezstikis":
-                    return player.score -= 12;
+                    chosenPlayer.score -= 12;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score += 4;
+                        }
+                    });
+                    break;
             }
         }
 
         if(choice === "Zole") {
             switch (result){
                 case "Zole Win Basic":
-                    return player.score += 18;
+                    chosenPlayer.score += 18;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score -= 6;
+                        }
+                    });
+                    break;
                 case "Zole Win Jani":
-                    return player.score += 21;
+                    chosenPlayer.score += 21;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score -= 7;
+                        }
+                    });
+                    break;
                 case "Zole Win Bezstikis":
-                    return player.score += 24;
-                case "Zole Loss":
-                    return player.score -= 21;
+                    chosenPlayer.score += 24;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score -= 8;
+                        }
+                    });
+                    break;
+                case "Zole Loss Basic":
+                    chosenPlayer.score -= 21;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score += 7;
+                        }
+                    });
+                    break;
                 case "Zole Loss Jani":
-                    return player.score -= 24;
+                    chosenPlayer.score -= 24;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score += 8;
+                        }
+                    });
+                    break;
                 case "Zole Loss Bezstikis":
-                    return player.score -= 27;
+                    chosenPlayer.score -= 27;
+                    players.forEach((player, index) => {
+                        if(index !== chosenPlayerIndex){
+                            player.score += 9;
+                        }
+                    });
+                    break;
             }
         }
 
         if(choice === "Maza zole") {
             if(result === "Maza zole Win"){
-                return player.score += 18;
+                chosenPlayer.score += 18;
+                players.forEach((player, index) => {
+                    if(index !== chosenPlayerIndex){
+                        player.score -= 6;
+                    }
+                });
             } else if(result === "Maza zole Loss"){
-                return player.score -= 21;
+                chosenPlayer.score -= 21;
+                players.forEach((player, index) => {
+                    if(index !== chosenPlayerIndex){
+                        player.score += 7;
+                    }
+                });
             }
         }
-
-        if(choice === "Galds"){
-            if(result === "Lose"){
-                return player.score -= 6;
-            }
-        }
+// šeit zaudētaju nosaka pēc spēles. zaudētājs -6, pārējie +2
+        // if(choice === "Galds"){
+        //     if(result === "Lose"){
+        //         return player.score -= 6;
+        //     }
+        // }
 
     }
 }
+
+export default gameLogic;

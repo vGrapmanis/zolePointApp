@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 
 export default function NewGameScreen() {
@@ -6,15 +6,20 @@ export default function NewGameScreen() {
     
     return (
     <View style={styles.container}>
-      <Text style={styles.text}>Choose player count</Text>
-
-      <View style={styles.buttonContainer}>
-        <Button title="3 Players" onPress={() => router.push("/insertInitials3")} />
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <Button title="4 Players" onPress={() => router.push("/insertInitials4")} />
-      </View>
+      <Text style={styles.text}>Spēlētāju skaits:</Text>
+        <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push("/insertInitials3")}
+        >
+                <Text style={styles.buttonText}>3 Spēlētāji</Text>
+        </TouchableOpacity>
+      
+        <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push("/insertInitials4")}
+        >
+            <Text style={styles.buttonText}>4 Spēlētāji</Text>
+        </TouchableOpacity>
     </View>
     );
 }
@@ -22,12 +27,29 @@ export default function NewGameScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: "#CFD8DC",
         alignItems: "center",
         justifyContent: "center",
     },
     text: {
-        fontSize: 24,
-        fontWeight: "bold",
+      fontSize:28,
+      fontWeight: "bold",
+      marginBottom: 50,
+    
+    },
+  
+    buttonText:{
+      fontSize:22,
+      fontWeight: "bold",
+    },
+  
+    button:{
+      backgroundColor: "#cfcd36",
+      padding: 10,
+      margin: 10,
+      borderRadius: 5,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
     },
 });

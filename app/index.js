@@ -1,38 +1,62 @@
-import { Text, View, StyleSheet, Button } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { StatusBar } from 'expo-status-bar';
 import { useRouter } from "expo-router";
+
 
 export default function HomeScreen() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
+      <StatusBar style="dark" backgroundColor="#CFD8DC" translucent={false}/>
       <Text style={styles.text}>Welcome to Zole Tracker</Text>
 
-      <View style={styles.buttonContainer}>
-        <Button title="New Game" onPress={() => router.push("/newGame")} />
+      <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push("/newGame")}
+        >
+          <Text style={styles.buttonText}>Jauna spēle</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push("/loadGame")}
+        >
+          <Text style={styles.buttonText}>Turpini kapāt</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.buttonContainer}>
-        <Button title="Load Game" onPress={() => router.push("/loadGame")} />
-      </View>
-    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#CFD8DC",
     alignItems: "center",
     justifyContent: "center",
   },
-  title: {
-    fontSize: 24,
+
+  text: {
+    fontSize:28,
     fontWeight: "bold",
-    marginBottom: 20, 
+    marginBottom: 50,
+  
   },
-  buttonContainer: {
-    width:200,
-    marginVertical: 10,
-  }
+
+  buttonText:{
+    fontSize:22,
+    fontWeight: "bold",
+  },
+
+  button:{
+    backgroundColor: "#cfcd36",
+    padding: 10,
+    margin: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+  },
 });
+
