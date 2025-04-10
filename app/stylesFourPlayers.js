@@ -3,17 +3,57 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "flex-start",
+        justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#CFD8DC",
-        paddingHorizontal: 20,
-
     },
     title: {
         fontSize: 28,
         fontWeight: "bold",
         marginBottom: 20,
     },
+    row: {
+        flexDirection: "row",
+        justifyContent: "center",
+        marginVertical: 10,
+    },
+    table: {
+  borderWidth: 1,
+  borderColor: "#000",
+  marginBottom: 20,
+},
+
+tableRow: {
+  flexDirection: "row",
+},
+
+tableCell: {
+  flex: 1,
+  borderWidth: 1,
+  borderColor: "#000",
+  paddingVertical: 10,
+  alignItems: "center",
+},
+      
+    cell: {
+        width: 60,
+        alignItems: "center",
+    },
+    scoreRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "80%",
+        marginBottom: 10,
+    },
+    playerName: {
+        fontSize: 18,
+        fontWeight: "bold",
+    },
+    playerScore: {
+        fontSize: 18,
+        marginTop: 5,
+    },
+
     initials: {
         fontSize: 24,
         fontWeight: "bold",
@@ -40,32 +80,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: "red",
     },
-// TABLE
-    table: {
-        width: "100%",
-        borderBottomWidth: 1,
-        borderLeftWidth: 1,
-        borderRightWidth: 1,
-        borderColor: "#0a0a0a",
-    },
 
-    tableRow: {
-        flexDirection: "row",
-        borderBottomWidth: 1,
-        borderColor: "#CFD8DC",
-    },
-    tableCell: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        paddingVertical: 5,
-        borderWidth: 1,
-        borderColor: "#ccc",
-    },
-    tableCellText: {
-        fontSize: 18,
-        color: "#0a0a0a",
-    },
 // BUTTONS
     buttonRow: {
         flexDirection: "row",
