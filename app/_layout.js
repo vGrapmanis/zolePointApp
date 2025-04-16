@@ -12,6 +12,7 @@ export default function RootLayout() {
         <Stack.Screen name="insertInitials4" options={{ title: "Insert Initials for 4 Players" }} />
         <Stack.Screen name="threePlayers" options={{ title: "3 Players Game" }} />
         <Stack.Screen name="fourPlayers" options={{ title: "4 Players Game" }} />
+        <Stack.Screen name="finalResults" options={{ title: "Spēles Rezultāti" }} />
       </Stack>
     </SQLiteProvider>
   );

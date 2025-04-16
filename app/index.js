@@ -2,7 +2,6 @@ import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from "expo-router";
 
-
 export default function HomeScreen() {
   const router = useRouter();
 
@@ -28,6 +27,8 @@ export default function HomeScreen() {
 
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {

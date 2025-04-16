@@ -2,7 +2,7 @@ const gameLogic = {
     calculateScores: (players, choice, result, chosenPlayerIndex) => {
         const chosenPlayer = players[chosenPlayerIndex];
 
-        if(choice === "Lielais") {
+        if(choice.toLowerCase() === "lielais") {
             switch (result){
                 case "Win Basic":
                     chosenPlayer.score += 3;
@@ -55,7 +55,7 @@ const gameLogic = {
             }
         }
 
-        if(choice === "Zole") {
+        if(choice.toLowerCase() === "zole") {
             switch (result){
                 case "Zole Win Basic":
                     chosenPlayer.score += 18;
@@ -108,7 +108,7 @@ const gameLogic = {
             }
         }
 
-        if(choice === "Maza zole") {
+        if(choice.toLowerCase() === "maza zole") {
             if(result === "Maza zole Win"){
                 chosenPlayer.score += 18;
                 players.forEach((player, index) => {
@@ -125,13 +125,6 @@ const gameLogic = {
                 });
             }
         }
-// šeit zaudētaju nosaka pēc spēles. zaudētājs -6, pārējie +2
-        // if(choice === "Galds"){
-        //     if(result === "Lose"){
-        //         return player.score -= 6;
-        //     }
-        // }
-
     }
 }
 

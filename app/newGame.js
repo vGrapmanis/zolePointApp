@@ -24,6 +24,10 @@ export default function NewGameScreen() {
     );
 }
 
+
+
+
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
