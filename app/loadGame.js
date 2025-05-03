@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert } from "react
 import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
+import AppBackground from "../styles/AppBackground";
 
 export default function LoadGameScreen() {
   const db = useSQLiteContext();
@@ -22,11 +23,15 @@ export default function LoadGameScreen() {
   };
 
   const handleGamePress = (gameId, playerInitials) => {
+    const initials = JSON.parse(playerInitials);
+    const screen = initials.length === 3 ? "/threePlayers" : "/fourPlayers";
+  
     router.push({
-      pathname: "/fourPlayers",
+      pathname: screen,
       params: { gameId, playerInitials }
     });
   };
+  
 
   const handleDeleteGame = async (gameId) => {
     Alert.alert(
@@ -52,33 +57,53 @@ export default function LoadGameScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Izvēlies spēli:</Text>
+    <AppBackground>
       <FlatList
-        data={games}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.gameItem}>
-            <TouchableOpacity
-              style={styles.playButton}
-              onPress={() => handleGamePress(item.id, item.player_initials)}
-            >
-              <Text style={styles.buttonText}>
-                {JSON.parse(item.player_initials).join(", ")}
-              </Text>
-            </TouchableOpacity>
+  data={games}
+  keyExtractor={(item) => item.id.toString()}
+  contentContainerStyle={{
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+  
+  ListHeaderComponent={() => (
+    <View style={{alignItems: "center"}}>
+        {/* ATPAKAĻ POGA */}
+        <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => router.replace("/")}
+      >
+        <Text style={styles.backButtonText}>Atpakaļ uz sākumu</Text>
+      </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDeleteGame(item.id)}
-            >
-              <Text style={styles.deleteText}>Dzēst</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        ListEmptyComponent={<Text>Nav saglabātu spēļu.</Text>}
-      />
+      <Text style={styles.title}>Izvēlies spēli:</Text>
     </View>
+  )}
+
+  renderItem={({ item }) => (
+    <View style={styles.gameItem}>
+      <TouchableOpacity
+        style={styles.playButton}
+        onPress={() => handleGamePress(item.id, item.player_initials)}
+      >
+        <Text style={styles.buttonText}>
+          {JSON.parse(item.player_initials).join(", ")}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => handleDeleteGame(item.id)}
+      >
+        <Text style={styles.deleteText}>Dzēst</Text>
+      </TouchableOpacity>
+    </View>
+  )}
+  ListEmptyComponent={<Text>Nav saglabātu spēļu.</Text>}
+/>
+
+</AppBackground>
   );
 }
 
@@ -87,16 +112,27 @@ export default function LoadGameScreen() {
 
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#CFD8DC",
+  backButton: {
+    backgroundColor: "#1976d2",
+    padding: 12,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#0a0a0a",
+    width: "98%",
     alignItems: "center",
-    paddingTop: 40,
+    marginBottom: 20,
   },
+  backButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  
   title: {
-    fontSize: 24,
+    fontSize: 34,
     fontWeight: "bold",
     marginBottom: 20,
+  
   },
   gameItem: {
     flexDirection: "row",

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
+import AppBackground from "../styles/AppBackground";
 
 export default function InsertInitials4Screen() {
   const router = useRouter();
@@ -9,7 +10,6 @@ export default function InsertInitials4Screen() {
   const db = useSQLiteContext();
 
   const handleInputChange = (index, value) => {
-    const safeValue = typeof value === "string" ? value : "";
     const formattedValue = value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3);
     const newInitials = [...initials];
     newInitials[index] = formattedValue;
@@ -19,6 +19,12 @@ export default function InsertInitials4Screen() {
   const handleConfirm = async () => {
     if (initials.some(init => init.length < 1 || init.length > 3)) {
       Alert.alert("Nav ievadīti visi spēlētāju iniciāļi.");
+      return;
+    }
+
+  const unique = new Set(initials);
+    if (unique.size < initials.length) {
+      Alert.alert("Iniciāļi nedrīkst atkārtoties!");
       return;
     }
 
@@ -40,7 +46,14 @@ export default function InsertInitials4Screen() {
   };
 
   return (
-    <View style={styles.container}>
+    <AppBackground>
+           {/* ATPAKAĻ POGA */}
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.replace("/newGame")}
+            >
+              <Text style={styles.backButtonText}>Atpakaļ</Text>
+            </TouchableOpacity>
       <Text style={styles.title}>Ievadi spēlētāju iniciāļus:</Text>
 
       {initials.map((initial, index) => (
@@ -49,7 +62,7 @@ export default function InsertInitials4Screen() {
           style={styles.input}
           value={initial || ""}
           onChangeText={(text) => handleInputChange(index, text)}
-          placeholder={`Player ${index + 1}`}
+          placeholder={`Spēlētājs ${index + 1}`}
           maxLength={3}
           autoCapitalize="characters"
         />
@@ -61,19 +74,26 @@ export default function InsertInitials4Screen() {
       >
         <Text style={styles.buttonText}>Sākt spēli</Text>
       </TouchableOpacity>
-    </View>
+      </AppBackground>
   );
 }
 
 
-
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
+  backButton: {
+    backgroundColor: "#1976d2",
+    padding: 12,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#0a0a0a",
+    width: "90%",
     alignItems: "center",
-    backgroundColor: "#CFD8DC",
+    marginBottom: 20,
+  },
+  backButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   title: {
     fontSize: 28,

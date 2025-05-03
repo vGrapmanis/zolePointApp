@@ -1,38 +1,20 @@
 import { Stack } from "expo-router/stack";
 import { SQLiteProvider } from 'expo-sqlite';
+import { createDbIfNeeded } from '../database/database';
 
 export default function RootLayout() {
   return (  
-    <SQLiteProvider databaseName="game.db" onInit={createDbIfNeeded}>
-      <Stack>
-        <Stack.Screen name="index" options={{ title: "Home Screen" }} />
-        <Stack.Screen name="newGame" options={{ title: "Jauna Spēle" }} />
-        <Stack.Screen name="loadGame" options={{ title: "Turpini Kapāt" }} />
-        <Stack.Screen name="insertInitials3" options={{ title: "Insert Initials for 3 Players" }} />
-        <Stack.Screen name="insertInitials4" options={{ title: "Insert Initials for 4 Players" }} />
-        <Stack.Screen name="threePlayers" options={{ title: "3 Players Game" }} />
-        <Stack.Screen name="fourPlayers" options={{ title: "4 Players Game" }} />
-        <Stack.Screen name="finalResults" options={{ title: "Spēles Rezultāti" }} />
+    <SQLiteProvider databaseName="game.db" onInit={createDbIfNeeded}>  
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="newGame" />
+        <Stack.Screen name="loadGame" />
+        <Stack.Screen name="insertInitials3" />
+        <Stack.Screen name="insertInitials4" />
+        <Stack.Screen name="threePlayers" />
+        <Stack.Screen name="fourPlayers" />
+        <Stack.Screen name="finalResults" />
       </Stack>
     </SQLiteProvider>
   );
-}
-
-const createDbIfNeeded = async (db) => {
-  await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS game (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      player_initials TEXT
-    );
-  `);
-
-  await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS rounds (
-      game_id INTEGER,
-      choice TEXT,
-      result TEXT,
-      scores TEXT,
-      FOREIGN KEY(game_id) REFERENCES game(id)
-    );
-  `);
 };

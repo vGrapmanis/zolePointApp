@@ -1,7 +1,10 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
+import { Alert } from "react-native";
+
+import AppBackground from "../styles/InGameAppBackground";
 
 export default function FinalResultsScreen() {
   const { gameId } = useLocalSearchParams();
@@ -9,7 +12,9 @@ export default function FinalResultsScreen() {
   const router = useRouter();
   const [players, setPlayers] = useState([]);
   const [stats, setStats] = useState({});
-  const gameTypes = ["Lielais", "Zole", "Maza Zole", "Galds"];
+  const gameTypes = ["Lielais", "Zole", "Mazā Zole", "Galds"];
+  const [lastRoundScores, setLastRoundScores] = useState(null);
+
 
   useEffect(() => {
     if (db && gameId) {
@@ -19,54 +24,127 @@ export default function FinalResultsScreen() {
 
   const loadStats = async () => {
     try {
-      const game = await db.getFirstAsync("SELECT player_initials FROM game WHERE id = ?", [gameId]);
+      const game = await db.getFirstAsync(
+        "SELECT player_initials FROM game WHERE id = ?", 
+        [gameId]
+      );
       const initials = JSON.parse(game.player_initials);
       setPlayers(initials);
-      const rounds = await db.getAllAsync("SELECT choice, result, scores FROM rounds WHERE game_id = ?", [gameId]);
+  
+      const rounds = await db.getAllAsync(
+        "SELECT choice, result, scores FROM rounds WHERE game_id = ?", 
+        [gameId]
+      );
+  
       const playerStats = {};
       initials.forEach((initial) => {
         playerStats[initial] = {
           "Lielais": { played: 0, wins: 0 },
           "Zole": { played: 0, wins: 0 },
-          "Maza Zole": { played: 0, wins: 0 },
+          "Mazā Zole": { played: 0, wins: 0 },
           "Galds": { losses: 0 },
         };
       });
-
+  
+      const normalizeChoice = (choice) => {
+        const map = {
+          "lielais": "Lielais",
+          "zole": "Zole",
+          "mazā zole": "Mazā Zole",
+          "maza zole": "Mazā Zole"
+        };
+        return map[choice.toLowerCase().trim()] || choice.trim();
+      };
+  
+      const winResults = [
+        "Uzvara", "Uzvara Jaņi", "Uzvara Bezstiķis",
+        "Zole Uzvara", "Zole Uzvara Jaņi", "Zole Uzvara Bezstiķis",
+        "Mazā Zole Uzvara"
+      ];
+  
+      if (rounds.length > 0) {
+        const lastRound = rounds[rounds.length - 1];
+        setLastRoundScores(JSON.parse(lastRound.scores)); 
+      }
+  
       rounds.forEach((round, i) => {
-        const { choice, result, scores } = round;
+        const rawChoice = round.choice;
+        const result = round.result;
+        const choice = normalizeChoice(rawChoice);
+  
         const dealerIndex = i % initials.length;
         const chooserIndex = (dealerIndex + 1) % initials.length;
         const chooser = initials[chooserIndex];
-
-        if (choice === "Garam" && result === "Lose") {
-          const currentScores = JSON.parse(scores);
-          const previousScores = i > 0 ? JSON.parse(rounds[i - 1].scores) : Array(initials.length).fill(0);
-          const loserIndex = currentScores.findIndex((score, idx) => score - previousScores[idx] === -6);
-            if (loserIndex !== -1) {
-              const loserInitial = initials[loserIndex];
-              playerStats[loserInitial]["Galds"].losses += 1;
-            }
-        } else if (playerStats[chooser]?.[choice]) {
+  
+        // Galds gadījums
+        if (rawChoice === "Garām" && result.startsWith("Galds:")) {
+          const loserInitial = result.split(":")[1].trim();
+          if (playerStats[loserInitial]) {
+            playerStats[loserInitial]["Galds"].losses += 1;
+          }
+          return; // skip further
+        }
+  
+        if (playerStats[chooser]?.[choice]) {
           playerStats[chooser][choice].played += 1;
-          if (!result.toLowerCase().includes("loss") && choice !== "Garam") {
+          if (winResults.includes(result)) {
             playerStats[chooser][choice].wins += 1;
           }
         }
       });
-
+  
       setStats(playerStats);
-      } catch (error) {
+  
+    } catch (error) {
       console.error("Kļūda statistikā:", error);
+      Alert.alert(
+        "Kļūda!",
+        "Neizdevās ielādēt spēles statistiku.",
+        [
+          {
+            text: "Uz sākumu",
+            onPress: () => router.replace("/"),
+          },
+        ],
+        { cancelable: false }
+      );
     }
   };
+  
+  
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Spēles statistika</Text>
+    <AppBackground>
+    <View style={styles.container}>
+      
+      {lastRoundScores && (
+  <>
+    <Text style={[styles.title, { marginBottom: 25 }]}>Gala rezultāts</Text>
+   
+    {/* Spēlētāju iniciāļi */}
+    <View style={styles.row}>
+      {players.map((player, index) => (
+        <View key={index} style={styles.cell}>
+          <Text style={styles.playerName}>{player}</Text> 
+        </View>
+      ))}
+    </View>
+
+    {/* Punkti */}
+    <View style={styles.row}>
+      {lastRoundScores.map((score, index) => (
+        <View key={index} style={styles.cell}>
+          <Text style={styles.latestPlayerScore}>{score}</Text>
+        </View>
+      ))}
+    </View>
+  </>
+)}
+<Text style={styles.title}>Spēles statistika</Text>
+<Text style={styles.underTitle}>spēles/uzvaras</Text>
         <View style={styles.table}>
           <View style={styles.row}>
-            <Text style={styles.headerCell}>Spēlētājs</Text>
+            <Text style={styles.headerCell}>*</Text>
             {gameTypes.map((type, index) => (
               <Text key={index} style={styles.headerCell}>{type === "Galds" ? "Galds\nzaudēts" : type}</Text>
             ))}
@@ -103,7 +181,8 @@ export default function FinalResultsScreen() {
       >
         <Text style={styles.buttonText}>Iziet un dzēst!</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
+    </AppBackground>
   );
 }
 
@@ -111,12 +190,19 @@ export default function FinalResultsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#CFD8DC",
+    flex: 1,
     padding: 20,
     alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     fontSize: 26,
+    fontWeight: "bold",
+    marginBottom:5,
+    marginTop: 30,
+  },
+  underTitle:{
+    fontSize: 20,
     fontWeight: "bold",
     marginBottom: 20,
   },
@@ -160,5 +246,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#fff",
+  },
+  latestPlayerScore: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 5,
+  },
+  playerName: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginTop: 5,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

@@ -2,7 +2,8 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Modal, ScrollView } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
-import gameLogic4 from "./gameLogic4";
+
+import gameLogic3 from "./gameLogic3";
 import styles from "../styles/styles";
 import AppBackground from "../styles/InGameAppBackground";
 import ReusableModal from "../components/ReusableModal";
@@ -10,7 +11,7 @@ import ResultModal from "../components/ResultModal";
 import ConfirmModal from "../components/ConfirmModal";
 import LoserModal from "../components/LoserModal";
 
-export default function FourPlayersScreen() {
+export default function ThreePlayersScreen() {
   const db = useSQLiteContext();
   const { gameId, playerInitials } = useLocalSearchParams();
   const router = useRouter();
@@ -27,13 +28,13 @@ export default function FourPlayersScreen() {
     initialsArray.map((initial) => ({ name: initial, score: 0 }))
   );
   const [rounds, setRounds] = useState([]);
-  const [lastFourRounds, setLastFourRounds] = useState([]);
+  const [lastThreeRounds, setLastThreeRounds] = useState([]);
   const [finalCycleActive, setFinalCycleActive] = useState(false);
   const [passedPlayers, setPassedPlayers] = useState([]);
   const [chooserIndex, setChooserIndex] = useState(0);
   const [confirmFinalCycleModal, setConfirmFinalCycleModal] = useState(false);
   const [dealerIndex, setDealerIndex] = useState(0);
-
+ 
   useEffect(() => {
     if (db && gameId) {
       loadRounds();
@@ -44,11 +45,16 @@ export default function FourPlayersScreen() {
     try {
       const result = await db.getAllAsync("SELECT scores FROM rounds WHERE game_id = ?", [gameId]);
       setRounds(result);
-      setLastFourRounds(result.slice(-4).reverse());
+      setLastThreeRounds(result.slice(-3).reverse());
   
       if (result.length > 0) {
         const latestScores = JSON.parse(result[result.length - 1].scores);
-        setPlayers(players.map((p, i) => ({ ...p, score: latestScores[i] })));
+        const updatedPlayers = initialsArray.map((name, i) => ({
+          name,
+          score: latestScores[i]
+        }));
+        setPlayers(updatedPlayers);
+      
         const nextDealer = result.length % players.length;
         setDealerIndex(nextDealer);
         setChooserIndex((nextDealer + 1) % players.length);
@@ -60,13 +66,14 @@ export default function FourPlayersScreen() {
       console.error("Kļūda ielādējot raundus:", error);
     }
   };
-
+  
   const saveRound = async (choice, result, updatedPlayers) => {
     await db.runAsync(
       `INSERT INTO rounds (game_id, choice, result, scores) VALUES (?, ?, ?, ?);`,
       [gameId, choice, result, JSON.stringify(updatedPlayers.map((p) => p.score))]
     );
     await loadRounds();
+
   };
 
   const getDealerIndex = () => rounds.length % players.length;
@@ -96,7 +103,7 @@ export default function FourPlayersScreen() {
   const handleConfirmResult = async (result) => {
     const updatedPlayers = [...players];
     const nextDealer = (dealerIndex + 1) % players.length
-    gameLogic4.calculateScores(updatedPlayers, selectedChoice, result, chooserIndex);
+    gameLogic3.calculateScores(updatedPlayers, selectedChoice, result, chooserIndex);
     await saveRound(selectedChoice, result, updatedPlayers);
     setPassedPlayers([]);
     setDealerIndex(nextDealer);
@@ -108,11 +115,10 @@ export default function FourPlayersScreen() {
   const handleLoserConfirmed = async () => {
     const updatedPlayers = [...players];
     const nextDealer = (dealerIndex + 1) % players.length;
-    updatedPlayers.forEach((p, i) => (p.score += i === selectedLoserIndex ? -6 : 2));
+    updatedPlayers.forEach((p, i) => (p.score += i === selectedLoserIndex ? -4 : 2));
     setConfirmLoserModal(false);
     const loserName = players[selectedLoserIndex]?.name;
     await saveRound("Garām", `Galds: ${loserName}`, updatedPlayers);
-
     setPassedPlayers([]);
     setDealerIndex(nextDealer);
     checkFinalCycleEnd(); 
@@ -142,9 +148,9 @@ export default function FourPlayersScreen() {
   
   return (
     <AppBackground>
-    <View style={styles.container}>
+      <View style={styles.container}>
 
-          {/* Pēdējais aplis poga */}
+        {/* Pēdējais aplis poga */}
         {!finalCycleActive && ( 
           <TouchableOpacity
             style={[styles.baseButton, styles.finalCycleButton]}
@@ -154,41 +160,39 @@ export default function FourPlayersScreen() {
           </TouchableOpacity>
         )}
 
-          {/* EXIT POGA */}
+        {/* EXIT POGA */}
+          <TouchableOpacity
+            style={[styles.baseButton, styles.exitButton]}
+            onPress={() => router.replace("/")}
+          >
+            <Text style={styles.finalExitButtonText}>Iziet uz sākumu</Text>
+          </TouchableOpacity>
           
-            <TouchableOpacity
-              style={[styles.baseButton, styles.exitButton]}
-              onPress={() => router.replace("/")}
-            >
-              <Text style={styles.finalExitButtonText}>Iziet uz sākumu</Text>
-            </TouchableOpacity>
-          
-
+          {/* Pēdējais aplis aktivizēts */}
           {finalCycleActive && <Text style={[styles.title, { color: "red" }]}>Pēdējais aplis</Text>}
             
-                <View style={styles.row}>
-                  {players.map((player, index) => (
-                    <View key={index} style={styles.cell}>
-                      <Text style={styles.playerName}>{player.name}</Text>
+          <View style={styles.row}>
+            {players.map((player, index) => (
+              <View key={index} style={styles.cell}>
+                <Text style={styles.playerName}>{player.name}</Text>
+              </View>
+            ))}
+          </View>
+
+          {lastThreeRounds.map((round, index) => {
+            const parsedScores = JSON.parse(round.scores);
+              return (
+                <View key={index} style={styles.row}>
+                  {parsedScores.map((score, idx) => (
+                    <View key={idx} style={styles.cell}>
+                      <Text style={index === 0 ? styles.latestPlayerScore : styles.playerScore}>{score}</Text>
                     </View>
                   ))}
-                </View>
+                </View> 
+              );
+            })}
 
-      {lastFourRounds.map((round, index) => {
-        const parsedScores = JSON.parse(round.scores);
-          return (
-            <View key={index} style={styles.row}>
-              {parsedScores.map((score, idx) => (
-                <View key={idx} style={styles.cell}>
-                  <Text style={index === 0 ? styles.latestPlayerScore : styles.playerScore}>{score}</Text>
-                </View>
-              ))}
-            </View>
-            
-          );
-      })}
-
-      {Array.from({ length: 4 - lastFourRounds.length }).map((_, idx) => (
+      {Array.from({ length: 3 - lastThreeRounds.length }).map((_, idx) => (
         <View key={`empty-${idx}`} style={styles.row}>
           {players.map((_, i) => (
             <View key={i} style={styles.cell}>
@@ -209,78 +213,79 @@ export default function FourPlayersScreen() {
         ))}
       </View>
 
-      {/* MODAL: Apstiprini izvēli (Lielais, Zole...) */}
-      <ReusableModal
-        visible={modalVisible}
-        title="Esi drošs?"
-        onRequestClose={handleModalClose}
-        buttons={[
-          { text: "Jā", onPress: handleConfirmChoice },
-          { text: "Nē", onPress: handleModalClose },
-        ]}
-      />
+        {/* MODAL: Apstiprini izvēli (Lielais, Zole, Mazā Zole, Garām) */}
+        <ReusableModal
+          visible={modalVisible}
+          title="Esi drošs?"
+          onRequestClose={handleModalClose}
+          buttons={[
+            { text: "Jā", onPress: handleConfirmChoice },
+            { text: "Nē", onPress: handleModalClose },
+          ]}
+        />
 
-      {/* MODAL: Rezultāta izvēle */}
-      <ResultModal
-        visible={resultModalVisible}
-        options={resultOptions[selectedChoice] || []}
-        onSelect={(result) => {
-          setPendingResult(result);
-          setResultModalVisible(false);
-          setConfirmResultModal(true);
-        }}
-        onBack={handleModalClose}
-      />
+        {/* MODAL: Rezultāta izvēle */}
+        <ResultModal
+          visible={resultModalVisible}
+          options={resultOptions[selectedChoice] || []}
+          onSelect={(result) => {
+            setPendingResult(result);
+            setResultModalVisible(false);
+            setConfirmResultModal(true);
+          }}
+          onBack={handleModalClose}
+        />
 
-      {/* MODAL: Apstiprini rezultātu */}
-      <ConfirmModal
-        visible={confirmResultModal}
-        message="Vai tiešām?"
-        onConfirm={() => {
-          handleConfirmResult(pendingResult);
-          setConfirmResultModal(false);
-          setPendingResult(null);
-        }}
-        onCancel={() => {
-          setConfirmResultModal(false);
-          setResultModalVisible(true);
-          setPendingResult(null);
-        }}
-      />
+        {/* MODAL: Apstiprini rezultātu */}
+        <ConfirmModal
+          visible={confirmResultModal}
+          message="Vai tiešām?"
+          onConfirm={() => {
+            handleConfirmResult(pendingResult);
+            setConfirmResultModal(false);
+            setPendingResult(null);
+          }}
+          onCancel={() => {
+            setConfirmResultModal(false);
+            setResultModalVisible(true);
+            setPendingResult(null);
+          }}
+        />
 
-      {/* MODAL: Galds zaudētāja izvēle */}
-      <LoserModal
-        visible={showLoserModal}
-        players={players}
-        onSelect={(i) => {
-          setSelectedLoserIndex(i);
-          setShowLoserModal(false);
-          setConfirmLoserModal(true);
-        }}
-      />
 
-      {/* MODAL: Galds apstiprinājums */}
-      <ConfirmModal
-        visible={confirmLoserModal}
-        message={`Vai esi drošs, ka ${players[selectedLoserIndex]?.name || "spēlētājs"} zaudēja?`}
-        onConfirm={handleLoserConfirmed}
-        onCancel={() => {
-          setConfirmLoserModal(false);
-          setShowLoserModal(true);
-        }}
-      />
+        {/* MODAL: Galds zaudētāja izvēle */}
+        <LoserModal
+          visible={showLoserModal}
+          players={players}
+          onSelect={(i) => {
+            setSelectedLoserIndex(i);
+            setShowLoserModal(false);
+            setConfirmLoserModal(true);
+          }}
+        />
 
-      {/* PĒDĒJAIS APLIS */}
-      <ConfirmModal
-        visible={confirmFinalCycleModal}
-        message="Vai tiešām sākt pēdējo apli?"
-        onConfirm={() => {
-          setFinalCycleActive(true);
-          setConfirmFinalCycleModal(false);
-        }}
-        onCancel={() => setConfirmFinalCycleModal(false)}
-      />
+        {/* MODAL: Galds apstiprinājums */}
+        <ConfirmModal
+          visible={confirmLoserModal}
+          message={`Vai esi drošs, ka ${players[selectedLoserIndex]?.name || "spēlētājs"} zaudēja?`}
+          onConfirm={handleLoserConfirmed}
+          onCancel={() => {
+            setConfirmLoserModal(false);
+            setShowLoserModal(true);
+          }}
+        />
 
-    </View>
-  </AppBackground>
-)};
+        {/* PĒDĒJAIS APLIS */}
+        <ConfirmModal
+          visible={confirmFinalCycleModal}
+          message="Vai tiešām sākt pēdējo apli?"
+          onConfirm={() => {
+            setFinalCycleActive(true);
+            setConfirmFinalCycleModal(false);
+          }}
+          onCancel={() => setConfirmFinalCycleModal(false)}
+        />
+
+      </View>
+    </AppBackground>
+  )};
