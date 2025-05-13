@@ -1,54 +1,41 @@
 {
   "expo": {
-    "name": "galaDarbs",
-    "slug": "galaDarbs",
+    "name": "ZolePointApp",
+    "slug": "zole-point-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/icon/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.festus.zolepointapp",
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.festus.zolepointapp",
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/icon/favicon.ico"
     },
-    "plugins": [
-      "expo-router", "expo-sqlite",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/icon/splash-icon.png",
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ],
-      [
-        "expo-sqlite",
-        {
-          "enableFTS": true,
-          "useSQLCipher": true,
-          "android": {
-            "enableFTS": false,
-            "useSQLCipher": false
-          },
-          "ios": {
-            "customBuildFlags": ["-DSQLITE_ENABLE_DBSTAT_VTAB=1 -DSQLITE_ENABLE_SNAPSHOT=1"]
-          }
-        }
-      ]
-    ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "plugins": [
+      "expo-sqlite",
+      "expo-asset"
+    ]
   }
 }

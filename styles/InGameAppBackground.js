@@ -1,6 +1,6 @@
 import { ImageBackground, View, StyleSheet } from "react-native";
 
-const backgroundImage = require("../assets/images/app_bckgrnd.png");
+const backgroundImage = require("../assets/images/bckgrnd.jpg");
 
 export default function AppBackground({ children }) {
   return (
