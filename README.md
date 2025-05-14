@@ -17,3 +17,5 @@ To run the app you need:
 - scan qr code with your device
 
 To run it smoothly be sure your pc and device are connected to the same network.
+
+PS. In case Node is not recognised, restart VisualStudioCode.
